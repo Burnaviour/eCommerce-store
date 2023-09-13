@@ -7,11 +7,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework.views import APIView
 # Create your views here.
 # from rest_framework.decorators import api_view
+
 from rest_framework.response import Response
-from rest_framework.mixins import CreateModelMixin
-from .models import Product, Collection, OrderItem, Review,CartItem,Cart
-from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer,CartSerializer
-from rest_framework.viewsets import ModelViewSet,GenericViewSet
+from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin
+from .models import Product, Collection, OrderItem, Review, CartItem, Cart
+from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .filters import ProductFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 from .pagination import DefaultPagination
@@ -58,10 +59,14 @@ class ReviewViewSet(ModelViewSet):
     def get_queryset(self):
         return Review.objects.filter(product_id=self.kwargs['product_pk'])
 
-class CartViewSet(CreateModelMixin,GenericViewSet):
+
+class CartViewSet(CreateModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     
+
+
+
 
 # class CollectionList(ListCreateAPIView):
 
