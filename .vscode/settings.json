@@ -2,5 +2,11 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.analysis.indexing": true,
- 
+  "python.linting.pylintArgs": [
+        "...<other_settings>...",
+        "--load-plugins",
+        "pylint_django",
+        "--django-settings-module",
+        "<your_app>.settings",
+    ],
 }
