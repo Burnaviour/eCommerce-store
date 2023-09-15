@@ -7,11 +7,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework.views import APIView
 # Create your views here.
 # from rest_framework.decorators import api_view
-
+from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import *
 from rest_framework.mixins import *
-from .models import Product, Collection, OrderItem, Review, CartItem, Cart
-from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateCartItemSerializer
+
+from store.permissions import IsAdminOrReadOnly
+from .models import Product, Collection, OrderItem, Review, CartItem, Cart, Customer
+from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CustomerSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateCartItemSerializer
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .filters import ProductFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -27,6 +30,7 @@ class ProductViewSet(ModelViewSet):
     search_fields = ['id', 'title']
     ordering_fields = ['unit_price', 'last_update']
     pagination_class = DefaultPagination
+    permission_classes = [IsAdminOrReadOnly]
 
     def get_serializer_context(self):
         # used to send data to serelizer like urls parameter etc
@@ -43,6 +47,7 @@ class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(
         product_count=Count('products')).all()
     serializer_class = CollectionSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         if Collection.objects.annotate(product_count=Count('products')).count() > 0:
@@ -81,6 +86,24 @@ class CartItemViewSet(ModelViewSet):
 
     def get_queryset(self):
         return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
+
+
+class CustomerViewSet(ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        (res, created) = Customer.objects.get_or_create(user_id=request.user.id)
+        if request.method == 'GET':
+            serializer = CustomerSerializer(res)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = CustomerSerializer(res, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 # class CollectionList(ListCreateAPIView):
 

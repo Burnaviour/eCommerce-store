@@ -54,7 +54,6 @@ class Customer(models.Model):
         (MEMBERSHIP_GOLD, 'Gold'),
     ]
 
-    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=255)
     birth_date = models.DateField(null=True, blank=True)
     membership = models.CharField(
@@ -91,6 +90,12 @@ class Order(models.Model):
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+
+    class Meta:
+        pass
+        permissions = [
+            ('cancel_order', 'Can Cancel order'),
+        ]
 
 
 class OrderItem(models.Model):
