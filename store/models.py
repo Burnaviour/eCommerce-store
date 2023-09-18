@@ -43,6 +43,20 @@ class Product(models.Model):
         ordering = ['title']
 
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        'Product', on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='store/images')
+    # name = models.CharField(max_length=255)
+    # description = models.TextField()
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
+    # class Meta:
+    #     ordering = ['name']
+    # def __str__(self) -> str:
+    #     return f'{self.name}'
+
+
 class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
     MEMBERSHIP_SILVER = 'S'

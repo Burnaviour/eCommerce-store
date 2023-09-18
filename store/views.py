@@ -24,7 +24,7 @@ from .pagination import DefaultPagination
 class ProductViewSet(ModelViewSet):
 
     serializer_class = ProductSerializer
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('images').all()
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     search_fields = ['id', 'title']
@@ -135,11 +135,16 @@ class OrderViewSet(ModelViewSet):
         user = self.request.user
         if user.is_staff:
             return Order.objects.all()
-        customer_id = Customer.objects.only(
+        customer_id = Customer.obPrjects.only(
             'id').get(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id)
 
-
+class ProductImageViewSet(ModelViewSet):
+    serializer_class=ProductImageSerializer
+    def get_serializer_context(self):
+        return {'product_id':self.kwargs['product_pk']}
+    def get_queryset(self):
+        return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
 # class CollectionList(ListCreateAPIView):
 
 # class CollectionDetails(RetrieveUpdateDestroyAPIView):
