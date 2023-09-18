@@ -13,8 +13,8 @@ from rest_framework.permissions import *
 from rest_framework.mixins import *
 
 from store.permissions import IsAdminOrReadOnly
-from .models import Product, Collection, OrderItem, Review, CartItem, Cart, Customer
-from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer, CustomerSerializer, CartItemSerializer, CartSerializer, AddCartItemSerializer, UpdateCartItemSerializer
+from .models import Product, Collection, OrderItem, Review, Order, CartItem, Cart, Customer
+from .serializers import *
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .filters import ProductFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -104,6 +104,34 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializers = CreateOrderSerializers(data=request.data, context={
+                                             'user_id': self.request.user.id})
+        serializers.is_valid(raise_exception=True)
+        order = serializers.save()
+        serializers = OrderSerializers(order)
+        return Response(serializers.data)
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return CreateOrderSerializers
+        else:
+            return OrderSerializers
+# after defining custom queryset we need to set basename in urls
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        (customer_id, create) = Customer.objects.only(
+            'id').get_or_create(user_id=user.id)
+        return Order.objects.filter(customer_id=customer_id)
+
 
 # class CollectionList(ListCreateAPIView):
 
