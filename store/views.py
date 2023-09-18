@@ -107,7 +107,12 @@ class CustomerViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'patch', 'delete', 'head', 'options']
+
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         serializers = CreateOrderSerializers(data=request.data, context={
@@ -120,9 +125,11 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
             return CreateOrderSerializers
+        elif self.request.method == 'PATCH':
+            return UpdateOrderSerializers
         else:
             return OrderSerializers
-# after defining custom queryset we need to set basename in urls
+    # after defining custom queryset we need to set basename in urls
 
     def get_queryset(self):
         user = self.request.user
