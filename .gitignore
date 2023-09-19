@@ -53,3 +53,4 @@ __pycache__/
 *.bat
 *.dat
 *.bak
+*.dir

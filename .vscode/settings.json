@@ -9,4 +9,9 @@
         "--django-settings-module",
         "<your_app>.settings",
     ],
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 }
