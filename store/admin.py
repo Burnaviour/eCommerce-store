@@ -20,6 +20,18 @@ class InventoryFilter(admin.SimpleListFilter):
             return queryset.filter(inventory__lt=10)
 
 
+class ProductImageInline(admin.TabularInline):
+
+    model = models.ProductImage
+    readonly_fields = ['thumbnail']
+
+    def thumbnail(self, instance):
+        if instance.image.name != '':
+            return format_html('<img src="{}" width="100" />', instance.image.url)
+        else:
+            return 'No Image Found'
+
+
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
     autocomplete_fields = ['collection']
@@ -40,9 +52,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(ordering='inventory')
     def inventory_status(self, product):
-        if product.inventory < 10:
-            return 'Low'
-        return 'OK'
+        return 'Low' if product.inventory < 10 else 'OK'
 
     @admin.action(description='Clear inventory')
     def clear_inventory(self, request, queryset):

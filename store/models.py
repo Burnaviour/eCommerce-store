@@ -4,6 +4,8 @@ import uuid
 from django.conf import settings
 from django.contrib import admin
 
+from store.validator import validator_image
+
 
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
@@ -46,7 +48,7 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(
         'Product', on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='store/images')
+    image = models.ImageField(upload_to='store/images',validators=[validator_image])
     # name = models.CharField(max_length=255)
     # description = models.TextField()
     # created_at = models.DateTimeField(auto_now_add=True)
