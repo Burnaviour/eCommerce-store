@@ -135,7 +135,7 @@ class OrderViewSet(ModelViewSet):
         user = self.request.user
         if user.is_staff:
             return Order.objects.all()
-        customer_id = Customer.obPrjects.only(
+        customer_id = Customer.objects.only(
             'id').get(user_id=user.id)
         return Order.objects.filter(customer_id=customer_id)
 
