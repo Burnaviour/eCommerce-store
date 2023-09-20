@@ -84,7 +84,7 @@ class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
 
     def get_total_price(self, cart):
-        print(cart.items.all)
+        # print(cart.items.all)
         return sum(
             item.product.unit_price * item.quantity for item in cart.items.all()
         )
